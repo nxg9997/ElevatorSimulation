@@ -5,9 +5,9 @@
 
 int main()
 {
-    std::cout << "=== Welcome to the Elevator ===" << std::endl;
+    std::cout << "=== Welcome to the Elevator Simulation ===" << std::endl;
 
-    std::cout << "Enter the Elevator Instructions: ";
+    std::cout << "Enter the Elevator Instructions (ex. start=x floor=x,y,z): ";
     std::string inputFull;
     std::getline(std::cin, inputFull);
 
@@ -26,6 +26,10 @@ int main()
             {
                 *charFloorNumCurrent = '\0';
                 bSetStart = true;
+            }
+            else if(*inputFullCurrent < 48 || *inputFullCurrent > 57)
+            {
+                std::cout << "invalid character input; skipping." << std::endl;
             }
             else
             {

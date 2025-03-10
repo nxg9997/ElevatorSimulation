@@ -37,5 +37,5 @@ private:
     RouteNode* Route = nullptr;
     RouteNode* CurrentNode = nullptr;
 
-    const float TravelTimeBetweenFloors = 10.f;
+    const float TRAVEL_TIME = 10.f;
 };

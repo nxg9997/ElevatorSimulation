@@ -22,7 +22,6 @@ Elevator& Elevator::operator=(const Elevator& _other)
 
 Elevator::~Elevator()
 {
-    // cleanup Route
     CleanRoute();
 }
 
@@ -47,28 +46,47 @@ void Elevator::SetRoute(const int _nFloorStart, std::vector<int> _FloorList)
     CleanRoute();
 
     std::sort(_FloorList.begin(), _FloorList.end());
-
-    // find split based on floor
-    auto iter = _FloorList.begin();
-    while(*iter < _nFloorStart) iter++;
-
-    std::vector<int> higherList(iter, _FloorList.end());
-    std::vector<int> lowerList(_FloorList.begin(), iter);
-
-    // find distance between lowest and highest floors relative to start
-    const int nLowerDiff = abs(_nFloorStart - *lowerList.begin());
-    const int nHigherDiff = abs(_nFloorStart - *(higherList.end()));
-
-    // determine start direction based on distance
     std::vector<int> finalRouteList;
-    const bool bLowerStart = nLowerDiff < nHigherDiff;
-    std::vector<int>& startingList = bLowerStart ? lowerList : higherList;
-    std::sort(startingList.begin(), startingList.end(), [bLowerStart](int l, int r){ return bLowerStart ? (l > r) : (r > l);});
-    std::vector<int>& endingList = bLowerStart ? higherList : lowerList;
-    
-    // generate the final route
-    finalRouteList = std::vector<int>(startingList.begin(), startingList.end());
-    finalRouteList.insert(finalRouteList.end(), endingList.begin(), endingList.end());
+    const bool bLessThanMin = *_FloorList.begin() > _nFloorStart;
+    const bool bGreaterThanMax = *(_FloorList.end() - 1) < _nFloorStart;
+    const bool bNeedToSort = !bLessThanMin && !bGreaterThanMax;
+
+    if(bNeedToSort)
+    {
+        // find split based on floor
+        auto iter = _FloorList.begin();
+        while(*iter < _nFloorStart) iter++;
+
+        std::vector<int> higherList(iter, _FloorList.end());
+        std::vector<int> lowerList(_FloorList.begin(), iter);
+
+        // find distance between lowest and highest floors relative to start
+        const int nLowerDiff = abs(_nFloorStart - *lowerList.begin());
+        const int nHigherDiff = abs(_nFloorStart - *(higherList.end() - 1));
+
+        // determine start direction based on distance
+        const bool bLowerStart = nLowerDiff < nHigherDiff;
+        std::vector<int>& startingList = bLowerStart ? lowerList : higherList;
+        std::sort(startingList.begin(), startingList.end(), [bLowerStart](int l, int r){ return bLowerStart ? (l > r) : (r > l);});
+        std::vector<int>& endingList = bLowerStart ? higherList : lowerList;
+        std::sort(endingList.begin(), endingList.end(), [bLowerStart](int l, int r){ return bLowerStart ? (l < r) : (r < l);});
+
+        // generate the final route
+        finalRouteList = std::vector<int>(startingList.begin(), startingList.end());
+        finalRouteList.insert(finalRouteList.end(), endingList.begin(), endingList.end());
+    }
+    else
+    {
+        if(bLessThanMin)
+        {
+            finalRouteList = _FloorList;
+        }
+        else if(bGreaterThanMax)
+        {
+            std::sort(_FloorList.begin(), _FloorList.end(), [](int l, int r){return r < l;});
+            finalRouteList = _FloorList;
+        }
+    }
 
     Route = new RouteNode(_nFloorStart);
     RouteNode* rn = Route;
@@ -90,7 +108,7 @@ void Elevator::MoveElevator(float _fTravelTimeTotal)
 {
     if(!CurrentNode || !CurrentNode->Next)
     {
-        std::cout << _fTravelTimeTotal << " ";
+        std::cout << "Result: " << _fTravelTimeTotal << " ";
         RouteNode* rn = Route;
         while(rn)
         {
@@ -105,7 +123,7 @@ void Elevator::MoveElevator(float _fTravelTimeTotal)
     const int nStartingFloor = CurrentNode->Floor;
     const int nTargetFloor = CurrentNode->Next->Floor;
     const int nFloorDiff = abs(nTargetFloor - nStartingFloor);
-    const float fTimeToMove = nFloorDiff * TravelTimeBetweenFloors;
+    const float fTimeToMove = nFloorDiff * TRAVEL_TIME;
 
     CurrentNode = CurrentNode->Next;
 
