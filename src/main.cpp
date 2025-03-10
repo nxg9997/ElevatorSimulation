@@ -7,14 +7,15 @@ int main()
 {
     std::cout << "=== Welcome to the Elevator Simulation ===" << std::endl;
 
+    // get input instructions from the user
     std::cout << "Enter the Elevator Instructions (ex. start=x floor=x,y,z): ";
-    std::string inputFull;
-    std::getline(std::cin, inputFull);
+    std::string strInputFull;
+    std::getline(std::cin, strInputFull);
 
-    char inputFloorNum[256];
-    char* charFloorNumCurrent = inputFloorNum;
-    char const* inputFullCurrent = inputFull.c_str();
-    char const* inputFullListStart = inputFull.c_str();
+    char cstrInputFloorNum[256];
+    char* charFloorNumCurrent = cstrInputFloorNum;
+    char const* charInputFullCurrent = strInputFull.c_str();
+    char const* charInputFullListStart = strInputFull.c_str();
 
     int nEqualCount = 0;
     bool bSetStart = false;
@@ -22,47 +23,48 @@ int main()
     {
         if(nEqualCount == 1 && !bSetStart)
         {
-            if(*inputFullCurrent == ' ')
+            if(*charInputFullCurrent == ' ')
             {
                 *charFloorNumCurrent = '\0';
                 bSetStart = true;
             }
-            else if(*inputFullCurrent < 48 || *inputFullCurrent > 57)
+            else if(*charInputFullCurrent < 48 || *charInputFullCurrent > 57)
             {
                 std::cout << "invalid character input; skipping." << std::endl;
             }
             else
             {
-                *charFloorNumCurrent = *inputFullCurrent;
+                *charFloorNumCurrent = *charInputFullCurrent;
                 charFloorNumCurrent++;
             }
         }
-        if(*inputFullCurrent == '=')
+        if(*charInputFullCurrent == '=')
         {
             nEqualCount++;
             if(nEqualCount == 2)
             {
-                inputFullListStart = inputFullCurrent + 1;
+                charInputFullListStart = charInputFullCurrent + 1;
                 break;
             }
         }
-        inputFullCurrent++;
+        charInputFullCurrent++;
     }
 
-    const int nStartingFloor = atoi(inputFloorNum);
+    // parse starting floor
+    const int nStartingFloor = atoi(cstrInputFloorNum);
 
     // parse list of floors to visit
-    char const* charInputCurrent = inputFullListStart;
-    char parseString[4096];
-    char* charParseCurrent = parseString;
+    char const* charInputCurrent = charInputFullListStart;
+    char cstrParseString[4096];
+    char* charParseCurrent = cstrParseString;
     std::vector<int> inputFloorList;
     do
     {
         if(*charInputCurrent == ',' || *charInputCurrent == '\0')
         {
             *charParseCurrent = '\0';
-            inputFloorList.push_back(atoi(parseString));
-            charParseCurrent = parseString;
+            inputFloorList.push_back(atoi(cstrParseString));
+            charParseCurrent = cstrParseString;
         }
         else if(*charInputCurrent < 48 || *charInputCurrent > 57)
         {
@@ -76,6 +78,7 @@ int main()
         charInputCurrent++;
     } while(*(charInputCurrent - 1) != '\0');
 
+    // run the elevator
     Elevator elevator;
     elevator.SetRoute(nStartingFloor, inputFloorList);
     elevator.StartElevator();

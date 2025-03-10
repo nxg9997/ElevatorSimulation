@@ -23,16 +23,16 @@ class Elevator
 public:
     Elevator();
     Elevator(const Elevator& _other);
-    Elevator& operator=(const Elevator& other);
+    Elevator& operator=(const Elevator& _other);
     ~Elevator();
 
-    void CallElevator(const int _nFloor);
     void SetRoute(const int _nFloorStart, std::vector<int> _FloorList);
     void StartElevator();
 
 private:
     void MoveElevator(float _fTravelTimeTotal = 0);
     void CleanRoute();
+    void InternalCopy(const Elevator& _other);
 
     RouteNode* Route = nullptr;
     RouteNode* CurrentNode = nullptr;

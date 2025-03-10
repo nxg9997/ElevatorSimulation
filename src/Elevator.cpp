@@ -6,18 +6,25 @@
 
 Elevator::Elevator()
 {
-    
+    Route = nullptr;
+    CurrentNode = nullptr;
 }
 
 Elevator::Elevator(const Elevator& _other)
 {
-
+    InternalCopy(_other);
 }
 
 Elevator& Elevator::operator=(const Elevator& _other)
 {
-
+    InternalCopy(_other);
     return *this;
+}
+
+void Elevator::InternalCopy(const Elevator& _other)
+{
+    Route = _other.Route;
+    CurrentNode = _other.CurrentNode;
 }
 
 Elevator::~Elevator()
@@ -36,17 +43,14 @@ void Elevator::CleanRoute()
     }
 }
 
-void Elevator::CallElevator(const int _nFloor)
-{
-
-}
-
 void Elevator::SetRoute(const int _nFloorStart, std::vector<int> _FloorList)
 {
     CleanRoute();
-
     std::sort(_FloorList.begin(), _FloorList.end());
+
     std::vector<int> finalRouteList;
+
+    // determine if a full sort is required
     const bool bLessThanMin = *_FloorList.begin() > _nFloorStart;
     const bool bGreaterThanMax = *(_FloorList.end() - 1) < _nFloorStart;
     const bool bNeedToSort = !bLessThanMin && !bGreaterThanMax;
@@ -88,6 +92,7 @@ void Elevator::SetRoute(const int _nFloorStart, std::vector<int> _FloorList)
         }
     }
 
+    // generate the route linked list
     Route = new RouteNode(_nFloorStart);
     RouteNode* rn = Route;
     for(const int& floor : finalRouteList)
@@ -106,6 +111,7 @@ void Elevator::StartElevator()
 
 void Elevator::MoveElevator(float _fTravelTimeTotal)
 {
+    // exit if we reacht he end of the route, output result
     if(!CurrentNode || !CurrentNode->Next)
     {
         std::cout << "Result: " << _fTravelTimeTotal << " ";
@@ -120,6 +126,7 @@ void Elevator::MoveElevator(float _fTravelTimeTotal)
         return;
     }
 
+    // determine travel time and move to next floor node
     const int nStartingFloor = CurrentNode->Floor;
     const int nTargetFloor = CurrentNode->Next->Floor;
     const int nFloorDiff = abs(nTargetFloor - nStartingFloor);
